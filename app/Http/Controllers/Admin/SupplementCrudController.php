@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\SupRequest;
-use App\Models\Grade;
+use App\Http\Requests\SupplementRequest;
+use App\Models\Student;
+use App\Models\Sup;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Class SupCrudController
+ * Class SupplementCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class SupCrudController extends CrudController
+class SupplementCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -29,9 +30,9 @@ class SupCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\Sup::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/sup');
-        CRUD::setEntityNameStrings('Lớp bổ trợ', 'Những lớp bổ trợ');
+        CRUD::setModel(\App\Models\Supplement::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/supplement');
+        CRUD::setEntityNameStrings('Buổi học bổ trợ', 'Những buổi học bổ trợ');
     }
 
     /**
@@ -42,9 +43,12 @@ class SupCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        CRUD::column('sup_id')->label("Lớp bổ trợ");
+        CRUD::column('name')->label("Tên buổi học bổ trợ");
+        CRUD::column('day')->label("Ngày");
+        CRUD::column('start')->label("Bắt đầu");
+        CRUD::column('end')->label("Kết thúc");
 
-        CRUD::column('name')->label("Tên lớp bổ trợ");
-        CRUD::column('grade_id')->label("Bổ trợ của lớp");
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -61,48 +65,45 @@ class SupCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(SupRequest::class);
+        CRUD::setValidation(SupplementRequest::class);
 
-
-        if (isset($_REQUEST['grade_id'])) {
-            $grade = Grade::where("id", $_REQUEST["grade_id"])->first();
-            if (isset($grade->name)) {
-                CRUD::field('grade_id')->type("hidden")->value($grade->id);
-                CRUD::field('name')->label("Tên lớp bổ trợ")->default("Bổ trợ của lớp " . $grade->name);
-                CRUD::addField([
-                    'label' => 'Học sinh',
-                    'type' => 'relationship',
-                    'name' => 'students',
-                    'model' => 'App\Models\Student',
-                    'entity' => 'Students',
-                    'options' => (function ($query) use ($grade) {
-                        return $query->whereHas("grades", function (Builder $builder) use ($grade) {
-                            $builder->where("id", $grade->id);
-                        })->get();
-                    }),
-                    'hint' => "Lưu ý: Danh sách học sinh được lấy từ lớp \"$grade->name\"",
-                ]);
+        if (isset($_REQUEST["sup_id"])) {
+            $sup = Sup::where("id", $_REQUEST["sup_id"])->first();
+            if (isset($sup->name)) {
+                CRUD::field('sup_id')->type("hidden")->value($sup->id);
+                CRUD::field('name')->label("Tên buổi học bổ trợ")->value("Buổi học của \"$sup->name\"");
+                CRUD::field('day')->label("Ngày");
+                CRUD::field('start')->label("Bắt đầu");
+                CRUD::field('end')->label("Kết thúc");
+                CRUD::addField(
+                    [   // select_and_order
+                        'name' => 'students',
+                        'label' => 'Học sinh tham gia',
+                        'type' => 'select_and_order',
+                        'options' => Student::whereHas("sups", function (Builder $builder) use ($sup) {
+                            $builder->where("id", $sup->id);
+                        })->get()->pluck('name', 'id')->toArray(),
+                    ],
+                );
             } else {
-                CRUD::field('grade_id')->label("Bổ trợ của lớp")->type("select2")->wrapper([
+                CRUD::field('sup_id')->label("Lớp bổ trợ")->type("select2")->wrapper([
                     'id' => 'pre-load',
-                    'name' => 'grade_id',
+                    'name' => 'sup_id'
                 ]);
             }
-
         } else {
-            CRUD::field('grade_id')->label("Bổ trợ của lớp")->type("select2")->wrapper([
+            CRUD::field('sup_id')->label("Lớp bổ trợ")->type("select2")->wrapper([
                 'id' => 'pre-load',
-                'name' => 'grade_id',
+                'name' => 'sup_id'
             ]);
         }
-        Widget::add()->type('script')->content('/js/pre-load.js');
-
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');
          * - CRUD::addField(['name' => 'price', 'type' => 'number']));
          */
+        Widget::add()->type('script')->content('/js/pre-load.js');
     }
 
     /**
@@ -113,7 +114,7 @@ class SupCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-        $_REQUEST["grade_id"] = $this->crud->getCurrentEntry()->grade->id;
+        $_REQUEST["sup_id"] = $this->crud->getCurrentEntry()->sup->id;
         $this->setupCreateOperation();
     }
 }

@@ -5,10 +5,9 @@ namespace App\Models;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Grade extends Model
+class Lesson extends Model
 {
     use CrudTrait;
     use HasFactory;
@@ -19,34 +18,31 @@ class Grade extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'grades';
+    protected $table = 'lessons';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     protected $guarded = ['id'];
     // protected $fillable = [];
     // protected $hidden = [];
     // protected $dates = [];
-
+    protected $casts = [
+        'students' => 'array'
+    ];
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
-    public function Course(): BelongsTo
-    {
-        return $this->belongsTo(Course::class);
-    }
 
-    public function Students(): BelongsToMany
-    {
-        return $this->belongsToMany(Student::class, "student_grade", "grade_id", "student_id");
-    }
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-
+    public function Grade()
+    {
+        return $this->belongsTo(Grade::class);
+    }
     /*
     |--------------------------------------------------------------------------
     | SCOPES

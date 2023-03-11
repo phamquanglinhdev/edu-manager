@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\GradeRequest;
+use App\Http\Requests\StudentRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
- * Class GradeCrudController
+ * Class StudentCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class GradeCrudController extends CrudController
+class StudentCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -26,9 +26,9 @@ class GradeCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\Grade::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/grade');
-        CRUD::setEntityNameStrings('Lớp học', 'Những lớp học');
+        CRUD::setModel(\App\Models\Student::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/student');
+        CRUD::setEntityNameStrings('Học sinh', 'Học sinh');
     }
 
     /**
@@ -39,8 +39,9 @@ class GradeCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('course_id')->label("Khóa học");
-        CRUD::column('name')->label("Lớp học");
+        CRUD::column('name')->label("Tên");
+        CRUD::column('email');
+        CRUD::column('password')->label("Mật khẩu");
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -57,19 +58,12 @@ class GradeCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(GradeRequest::class);
+        CRUD::setValidation(StudentRequest::class);
 
-        CRUD::field('course_id')->label("Khóa học");
-        CRUD::field('name')->label("Lớp học");
-        CRUD::addField([
-            'name' => 'students',
-            'type' => 'relationship',
-            'pivot' => true,
-            'label' => 'Học sinh',
-            'model' => 'App\Models\Student',
-            'entity' => 'Students'
-
-        ]);
+        CRUD::field('name')->label("Họ và tên");
+        CRUD::field('email');
+        CRUD::field('password');
+        CRUD::field("role")->type("hidden")->value("student");
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:

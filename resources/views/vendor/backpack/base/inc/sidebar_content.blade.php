@@ -7,3 +7,6 @@
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('log') }}'><i class='nav-icon la la-terminal'></i> Logs</a></li>
 <li class="nav-item"><a class="nav-link" href="{{ backpack_url('grade') }}"><i class="nav-icon la la-question"></i> Grades</a></li>
 <li class="nav-item"><a class="nav-link" href="{{ backpack_url('sup') }}"><i class="nav-icon la la-question"></i> Sups</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ backpack_url('lesson') }}"><i class="nav-icon la la-question"></i> Lessons</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ backpack_url('supplement') }}"><i class="nav-icon la la-question"></i> Supplements</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ backpack_url('student') }}"><i class="nav-icon la la-question"></i> Students</a></li>
