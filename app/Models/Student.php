@@ -35,4 +35,23 @@ class Student extends User
     {
         return $this->belongsToMany(Sup::class, "student_sup", "student_id", "sup_id");
     }
+
+    public function Lesson()
+    {
+        return Lesson::where("students", "like", "%\"$this->id\"%");
+    }
+
+    public function Frequency(): string
+    {
+        try {
+            $total = $this->Grades()->first();
+            if($total!=null){
+                $total=$total->Lesson()->count();
+            }
+        } catch (\Exception $exception) {
+            $total = 0;
+        }
+        $present = $this->Lesson()->count();
+        return "$present / $total";
+    }
 }

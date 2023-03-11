@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StudentRequest;
+use App\Models\Student;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -29,6 +30,7 @@ class StudentCrudController extends CrudController
         CRUD::setModel(\App\Models\Student::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/student');
         CRUD::setEntityNameStrings('Học sinh', 'Học sinh');
+        $this->crud->setOperationSetting('detailsRow', true);
     }
 
     /**
@@ -41,7 +43,6 @@ class StudentCrudController extends CrudController
     {
         CRUD::column('name')->label("Tên");
         CRUD::column('email');
-        CRUD::column('password')->label("Mật khẩu");
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -81,5 +82,11 @@ class StudentCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function showDetailsRow($id)
+    {
+        $student = Student::where("id", $id)->first();
+        return view("vendor.backpack.crud.details.students-detail",["student"=>$student]);
     }
 }
