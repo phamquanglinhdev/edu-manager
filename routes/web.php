@@ -15,6 +15,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('admin');
 });
 Route::post("/editable", [EditableController::class, "update"])->name("editable");
