@@ -47,6 +47,8 @@ class Student extends User
             $total = $this->Grades()->first();
             if($total!=null){
                 $total=$total->Lesson()->count();
+            }else{
+                $total = 0;
             }
         } catch (\Exception $exception) {
             $total = 0;
